@@ -87,16 +87,17 @@ export function MetricsTable({
   const columns: ColumnDef<MetricMetadata>[] = [
     {
       accessorKey: "name",
+      size: 200,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Metric Name" />
       ),
       cell: ({ row }) => {
         return (
           <div
-            className="font-medium max-w-[300px] truncate cursor-pointer hover:text-blue-500"
+            className="font-medium max-w-[200px] truncate cursor-pointer hover:text-blue-500"
             title={row.getValue("name")}
             onClick={(e) => {
-              e.stopPropagation(); // Prevent row click from triggering twice
+              e.stopPropagation();
               handleMetricClick(row.getValue("name"));
             }}
           >
@@ -107,6 +108,7 @@ export function MetricsTable({
     },
     {
       accessorKey: "type",
+      size: 100,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Type" />
       ),
@@ -114,10 +116,11 @@ export function MetricsTable({
     },
     {
       accessorKey: "help",
+      size: 250,
       header: "Description",
       cell: ({ row }) => (
         <div
-          className="text-sm text-muted-foreground max-w-[500px] truncate"
+          className="text-sm text-muted-foreground truncate"
           title={row.getValue("help")}
         >
           {row.getValue("help")}
@@ -126,26 +129,27 @@ export function MetricsTable({
     },
     {
       accessorKey: "alertCount",
+      size: 80,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Alerts" />
       ),
       cell: ({ row }) => (
         <span className="tabular-nums">{row.getValue("alertCount") ?? 0}</span>
       ),
-      enableSorting: false,
     },
     {
       accessorKey: "recordCount",
+      size: 90,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Records" />
       ),
       cell: ({ row }) => (
         <span className="tabular-nums">{row.getValue("recordCount") ?? 0}</span>
       ),
-      enableSorting: false,
     },
     {
       accessorKey: "dashboardCount",
+      size: 110,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Dashboards" />
       ),
@@ -154,10 +158,10 @@ export function MetricsTable({
           {row.getValue("dashboardCount") ?? 0}
         </span>
       ),
-      enableSorting: false,
     },
     {
       accessorKey: "queryCount",
+      size: 120,
       header: ({ column }) => (
         <DataTableColumnHeader column={column} title="Queries (30d)" />
       ),
@@ -178,7 +182,6 @@ export function MetricsTable({
           </div>
         );
       },
-      enableSorting: false,
     },
   ];
 

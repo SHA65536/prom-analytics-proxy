@@ -854,8 +854,8 @@ func (r *routes) seriesMetadata(w http.ResponseWriter, req *http.Request) {
 	params := db.SeriesMetadataParams{
 		Page:      1,
 		PageSize:  10,
-		SortBy:    "name",
-		SortOrder: "asc",
+		SortBy:    "queryCount",
+		SortOrder: "desc",
 		Filter:    "",
 		Type:      "",
 		Usage:     db.SeriesMetadataUsageAll,
@@ -879,8 +879,8 @@ func (r *routes) seriesMetadata(w http.ResponseWriter, req *http.Request) {
 			params.SortBy = sortBy
 		} else {
 			// Invalid sortBy provided - log warning and use safe default
-			slog.Warn("invalid sortBy parameter provided", "sortBy", sortBy, "using_default", "name")
-			params.SortBy = "name" // Safe default
+			slog.Warn("invalid sortBy parameter provided", "sortBy", sortBy, "using_default", "queryCount")
+			params.SortBy = "queryCount" // Safe default
 		}
 	}
 
@@ -891,8 +891,8 @@ func (r *routes) seriesMetadata(w http.ResponseWriter, req *http.Request) {
 			params.SortOrder = normalizedOrder
 		} else {
 			// Invalid sortOrder provided - log warning and use safe default
-			slog.Warn("invalid sortOrder parameter provided", "sortOrder", sortOrder, "using_default", "asc")
-			params.SortOrder = "asc" // Safe default
+			slog.Warn("invalid sortOrder parameter provided", "sortOrder", sortOrder, "using_default", "desc")
+			params.SortOrder = "desc" // Safe default
 		}
 	}
 	if filter := req.FormValue("filter"); filter != "" {

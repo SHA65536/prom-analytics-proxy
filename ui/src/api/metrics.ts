@@ -171,8 +171,8 @@ function withErrorHandling<T>(fn: () => Promise<T>, fallback: T): Promise<T> {
 export async function getSeriesMetadata(
   page: number = 1,
   pageSize: number = 10,
-  sortBy: string = "name",
-  sortOrder: string = "asc",
+  sortBy: string = "queryCount",
+  sortOrder: string = "desc",
   filter: string = "",
   type: string = "",
   usage: "all" | "used" | "unused" = "all",
