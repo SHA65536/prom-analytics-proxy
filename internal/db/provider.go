@@ -66,10 +66,27 @@ const MaxPageSize = 100
 // ValidSeriesMetadataSortFields centralizes sortable fields for series metadata
 // Note: These should match the actual column names used in the SQL query
 var ValidSeriesMetadataSortFields = map[string]bool{
-	"name": true,
-	"type": true,
-	"help": true,
-	"unit": true,
+	"name":           true,
+	"type":           true,
+	"help":           true,
+	"unit":           true,
+	"alertCount":     true,
+	"recordCount":    true,
+	"dashboardCount": true,
+	"queryCount":     true,
+}
+
+// SeriesMetadataSortAliases maps sort fields to their SQL expression with the correct table alias.
+// Fields from metrics_catalog use alias "c", fields from metrics_usage_summary use alias "s" with COALESCE.
+var SeriesMetadataSortAliases = map[string]string{
+	"name":           "c.name",
+	"type":           "c.type",
+	"help":           "c.help",
+	"unit":           "c.unit",
+	"alertCount":     "COALESCE(s.alert_count, 0)",
+	"recordCount":    "COALESCE(s.record_count, 0)",
+	"dashboardCount": "COALESCE(s.dashboard_count, 0)",
+	"queryCount":     "COALESCE(s.query_count, 0)",
 }
 
 const (
@@ -185,38 +202,45 @@ func ValidatePagination(page *int, pageSize *int, defaultPageSize int) {
 
 // BuildSafeOrderByClause constructs a safe ORDER BY clause using validated parameters
 // tableAlias should be the table alias (e.g., "c") or empty string if not needed
-func BuildSafeOrderByClause(sortBy, sortOrder, tableAlias string, validSortFields map[string]bool, defaultSort string) string {
-	// Validate parameters using existing validation function
+// sortAliases optionally maps field names to their full SQL expression (e.g., "alertCount" -> "COALESCE(s.alert_count, 0)")
+func BuildSafeOrderByClause(sortBy, sortOrder, tableAlias string, validSortFields map[string]bool, defaultSort string, sortAliases ...map[string]string) string {
 	ValidateSortField(&sortBy, &sortOrder, validSortFields, defaultSort)
 
-	// Build the ORDER BY clause safely
-	var orderByClause string
-	if tableAlias != "" {
-		orderByClause = fmt.Sprintf(" ORDER BY %s.%s %s NULLS LAST", tableAlias, sortBy, strings.ToUpper(sortOrder))
-	} else {
-		orderByClause = fmt.Sprintf(" ORDER BY %s %s NULLS LAST", sortBy, strings.ToUpper(sortOrder))
+	var sortExpr string
+	if len(sortAliases) > 0 && sortAliases[0] != nil {
+		if expr, ok := sortAliases[0][sortBy]; ok {
+			sortExpr = expr
+		}
+	}
+	if sortExpr == "" && tableAlias != "" {
+		sortExpr = fmt.Sprintf("%s.%s", tableAlias, sortBy)
+	} else if sortExpr == "" {
+		sortExpr = sortBy
 	}
 
-	return orderByClause
+	return fmt.Sprintf(" ORDER BY %s %s NULLS LAST", sortExpr, strings.ToUpper(sortOrder))
 }
 
 // BuildSafeQueryWithOrderBy constructs a complete query with validated ORDER BY clause
 // This function minimizes string concatenation for better static analysis compatibility
-func BuildSafeQueryWithOrderBy(baseQuery, tableAlias, limitClause string, sortBy, sortOrder string, validSortFields map[string]bool, defaultSort string) string {
-	// Validate parameters first
+// sortAliases optionally maps field names to their full SQL expression for mixed-table sorting
+func BuildSafeQueryWithOrderBy(baseQuery, tableAlias, limitClause string, sortBy, sortOrder string, validSortFields map[string]bool, defaultSort string, sortAliases ...map[string]string) string {
 	ValidateSortField(&sortBy, &sortOrder, validSortFields, defaultSort)
 
-	// Build complete query with validated components
-	var completeQuery string
-	if tableAlias != "" {
-		completeQuery = fmt.Sprintf("%s ORDER BY %s.%s %s NULLS LAST%s",
-			baseQuery, tableAlias, sortBy, strings.ToUpper(sortOrder), limitClause)
-	} else {
-		completeQuery = fmt.Sprintf("%s ORDER BY %s %s NULLS LAST%s",
-			baseQuery, sortBy, strings.ToUpper(sortOrder), limitClause)
+	var sortExpr string
+	if len(sortAliases) > 0 && sortAliases[0] != nil {
+		if expr, ok := sortAliases[0][sortBy]; ok {
+			sortExpr = expr
+		}
+	}
+	if sortExpr == "" && tableAlias != "" {
+		sortExpr = fmt.Sprintf("%s.%s", tableAlias, sortBy)
+	} else if sortExpr == "" {
+		sortExpr = sortBy
 	}
 
-	return completeQuery
+	return fmt.Sprintf("%s ORDER BY %s %s NULLS LAST%s",
+		baseQuery, sortExpr, strings.ToUpper(sortOrder), limitClause)
 }
 
 func CalculateTotalPages(totalCount, pageSize int) int {

@@ -2,6 +2,8 @@ TOOLS_BIN_DIR ?= $(shell pwd)/tmp/bin
 
 export PATH := $(TOOLS_BIN_DIR):$(PATH)
 
+-include scripts/tools.mk
+
 GOLANGCILINTER_BINARY=$(TOOLS_BIN_DIR)/golangci-lint
 MDOX_BINARY=$(TOOLS_BIN_DIR)/mdox
 SWAG_BINARY=$(TOOLS_BIN_DIR)/swag
@@ -88,7 +90,6 @@ all: fmt vet deps build
 .PHONY: tidy
 tidy:
 	go mod tidy -v
-	cd scripts && go mod tidy -v -modfile=go.mod -compat=1.18
 
 .PHONY: migrate.create.pg migrate.create.sqlite migrate.up.pg migrate.up.sqlite
 
@@ -125,23 +126,31 @@ uidependencies:
 $(TOOLS_BIN_DIR):
 	mkdir -p $(TOOLS_BIN_DIR)
 
-$(TOOLING): $(TOOLS_BIN_DIR)
-	@echo Installing tools from scripts/tools.go
-	@cat scripts/tools.go | grep _ | awk -F'"' '{print $$2}' | GOBIN=$(TOOLS_BIN_DIR) xargs -tI % go install -mod=readonly -modfile=scripts/go.mod %
+.PHONY: check-tooling-config
+check-tooling-config:
+	@test -n "$(MDOX_VERSION)" || (echo "Missing scripts/tools.mk tooling versions"; exit 1)
+	@test -n "$(GOLANGCILINT_VERSION)" || (echo "Missing scripts/tools.mk tooling versions"; exit 1)
+	@test -n "$(SWAG_VERSION)" || (echo "Missing scripts/tools.mk tooling versions"; exit 1)
+
+$(MDOX_BINARY): check-tooling-config $(TOOLS_BIN_DIR)
+	@echo Installing mdox $(MDOX_VERSION)
+	@GOBIN=$(TOOLS_BIN_DIR) go install $(MDOX_PACKAGE)@$(MDOX_VERSION)
+
+$(GOLANGCILINTER_BINARY): check-tooling-config $(TOOLS_BIN_DIR)
+	@echo Installing golangci-lint $(GOLANGCILINT_VERSION)
+	@GOBIN=$(TOOLS_BIN_DIR) go install $(GOLANGCILINT_PACKAGE)@$(GOLANGCILINT_VERSION)
 
 .PHONY: run-promql-smith
 run-promql-smith:
 	go run examples/promqlsmith/main.go
 
-SWAG=$(TOOLS_BIN_DIR)/swag
-
 .PHONY: generate-swagger
-generate-swagger: $(SWAG)
-	$(SWAG) init -g api/routes/routes.go -d . --parseDependency --parseInternal --output docs
+generate-swagger: $(SWAG_BINARY)
+	$(SWAG_BINARY) init -g api/routes/routes.go -d . --parseDependency --parseInternal --output docs
 
-$(SWAG): $(TOOLS_BIN_DIR)
-	@echo Installing swag
-	@GOBIN=$(TOOLS_BIN_DIR) go install github.com/swaggo/swag/cmd/swag@latest
+$(SWAG_BINARY): check-tooling-config $(TOOLS_BIN_DIR)
+	@echo Installing swag $(SWAG_VERSION)
+	@GOBIN=$(TOOLS_BIN_DIR) go install $(SWAG_PACKAGE)@$(SWAG_VERSION)
 
 .PHONY: check-swagger
 check-swagger: generate-swagger

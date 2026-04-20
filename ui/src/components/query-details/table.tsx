@@ -2,11 +2,12 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { DataTable, DataTableColumnHeader } from "@/components/data-table";
 import type { ColumnDef, SortingState } from "@tanstack/react-table";
-import { useDateRange } from "@/contexts/date-range-context";
+import { useDateRange } from "@/contexts/date-range";
 import { getQueryExecutions } from "@/api/queries";
 import type { PagedResult, QueryExecution } from "@/lib/types";
 import { formatUTCtoLocal } from "@/lib/utils/date-utils";
 import { Badge } from "@/components/ui/badge";
+import { formatUnit } from "@/lib/utils";
 import {
   Tooltip,
   TooltipContent,
@@ -235,7 +236,7 @@ const columns: ExtendedColumnDef<QueryExecution>[] = [
       const v = Number(row.getValue("samples"));
       return (
         <div className="text-right">
-          {Number.isFinite(v) ? v.toLocaleString() : "-"}
+          {Number.isFinite(v) ? formatUnit(v) : "-"}
         </div>
       );
     },

@@ -707,10 +707,10 @@ func (p *SQLiteProvider) GetSeriesMetadata(ctx context.Context, params SeriesMet
 		params.PageSize = 10
 	}
 	if params.SortBy == "" {
-		params.SortBy = "name"
+		params.SortBy = "queryCount"
 	}
 	if params.SortOrder == "" {
-		params.SortOrder = "asc"
+		params.SortOrder = "desc"
 	}
 	params.Usage = NormalizeSeriesMetadataUsage(params.Usage)
 
@@ -783,7 +783,7 @@ func (p *SQLiteProvider) GetSeriesMetadata(ctx context.Context, params SeriesMet
           ))
     `
 	// Build complete query with safe ORDER BY clause to prevent SQL injection
-	query := BuildSafeQueryWithOrderBy(baseQuery, "c", " LIMIT ? OFFSET ?", params.SortBy, params.SortOrder, ValidSeriesMetadataSortFields, "name")
+	query := BuildSafeQueryWithOrderBy(baseQuery, "c", " LIMIT ? OFFSET ?", params.SortBy, params.SortOrder, ValidSeriesMetadataSortFields, "queryCount", SeriesMetadataSortAliases)
 
 	rows, err := p.db.QueryContext(ctx, query,
 		params.Filter, params.Filter, params.Filter,
