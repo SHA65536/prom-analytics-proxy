@@ -233,7 +233,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: tmp/bin
-          key: tooling-${{ runner.os }}-${{ hashFiles('scripts/go.mod') }}
+          key: tooling-${{ runner.os }}-${{ hashFiles('scripts/tools.mk', 'Makefile') }}
       - name: Tidy Go modules
         run: make tidy
       - name: Check Documentation
@@ -262,7 +262,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: tmp/bin
-          key: tooling-${{ runner.os }}-${{ hashFiles('scripts/go.mod') }}
+          key: tooling-${{ runner.os }}-${{ hashFiles('scripts/tools.mk', 'Makefile') }}
       - name: Generate Swagger docs and check for drift
         run: make check-swagger
 
