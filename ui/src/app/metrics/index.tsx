@@ -12,7 +12,7 @@ export default function MetricsExplorer() {
   const [usageFilter, setUsageFilter] = useState<"all" | "used" | "unused">(
     "all",
   );
-  const [jobFilter, setJobFilter] = useState<string>("");
+  const [producerFilter, setProducerFilter] = useState<string>("");
   const [tableState, setTableState] = useState<TableState>({
     page: 1,
     pageSize: 10,
@@ -29,7 +29,7 @@ export default function MetricsExplorer() {
     tableState,
     debouncedSearchQuery,
     usageFilter,
-    jobFilter,
+    producerFilter,
   );
 
   if (isLoading) {
@@ -58,9 +58,9 @@ export default function MetricsExplorer() {
         onTypeFilterChange={handleTypeFilterChange}
         usageFilter={usageFilter}
         onUsageFilterChange={setUsageFilter}
-        jobs={data.jobs}
-        jobFilter={jobFilter}
-        onJobFilterChange={setJobFilter}
+        producers={data.producers}
+        producerFilter={producerFilter}
+        onProducerFilterChange={setProducerFilter}
       />
       <MetricsTable
         metrics={data.metrics}

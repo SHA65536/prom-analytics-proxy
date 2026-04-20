@@ -15,9 +15,9 @@ interface MetricsExplorerHeaderProps {
   onTypeFilterChange: (value: string) => void;
   usageFilter?: "all" | "used" | "unused";
   onUsageFilterChange?: (value: "all" | "used" | "unused") => void;
-  jobs?: string[];
-  jobFilter?: string;
-  onJobFilterChange?: (value: string) => void;
+  producers?: string[];
+  producerFilter?: string;
+  onProducerFilterChange?: (value: string) => void;
 }
 
 export function MetricsExplorerHeader({
@@ -27,13 +27,13 @@ export function MetricsExplorerHeader({
   onTypeFilterChange,
   usageFilter = "all",
   onUsageFilterChange,
-  jobs = [],
-  jobFilter = "",
-  onJobFilterChange,
+  producers = [],
+  producerFilter = "",
+  onProducerFilterChange,
 }: MetricsExplorerHeaderProps) {
-  const jobOptions = (jobs ?? []).filter((j) => !!j && j.trim().length > 0);
-  const currentJobValue = jobOptions.includes(jobFilter)
-    ? jobFilter
+  const producerOptions = producers.filter((p) => !!p && p.trim().length > 0);
+  const currentProducerValue = producerOptions.includes(producerFilter)
+    ? producerFilter
     : "__all__";
   return (
     <div className="flex flex-col gap-2">
@@ -66,22 +66,27 @@ export function MetricsExplorerHeader({
           </SelectContent>
         </Select>
         <Select
-          value={currentJobValue}
-          onValueChange={(v) => onJobFilterChange?.(v === "__all__" ? "" : v)}
+          value={currentProducerValue}
+          onValueChange={(v) =>
+            onProducerFilterChange?.(v === "__all__" ? "" : v)
+          }
         >
           <SelectTrigger className="w-[220px] sm:w-[240px] md:w-[280px] lg:w-[320px] text-left">
             <div className="flex items-center gap-2 min-w-0">
               <Filter className="h-4 w-4 shrink-0" />
-              <span className="truncate" title={jobFilter || "All Jobs"}>
-                <SelectValue placeholder="All Jobs" />
+              <span
+                className="truncate"
+                title={producerFilter || "All Producers"}
+              >
+                <SelectValue placeholder="All Producers" />
               </span>
             </div>
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="__all__">All Jobs</SelectItem>
-            {jobOptions.map((j) => (
-              <SelectItem key={j} value={j}>
-                {j}
+            <SelectItem value="__all__">All Producers</SelectItem>
+            {producerOptions.map((producer) => (
+              <SelectItem key={producer} value={producer}>
+                {producer}
               </SelectItem>
             ))}
           </SelectContent>
