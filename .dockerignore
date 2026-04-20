@@ -4,7 +4,8 @@
 .cursor
 tmp
 bin
-scripts
+scripts/*
+!scripts/tools.mk
 examples
 **/node_modules
 ui/dist
