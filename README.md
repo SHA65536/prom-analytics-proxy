@@ -113,7 +113,7 @@ Alternatively, using a config file:
 
 ```shell
 ./bin/prom-analytics-proxy api \
-    -config-file=./bin/config.yaml \
+    -config-file=./examples/config/api/dev.yaml \
     -log-level=DEBUG
 ```
 
