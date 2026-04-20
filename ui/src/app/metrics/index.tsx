@@ -16,8 +16,8 @@ export default function MetricsExplorer() {
   const [tableState, setTableState] = useState<TableState>({
     page: 1,
     pageSize: 10,
-    sortBy: "name",
-    sortOrder: "asc",
+    sortBy: "queryCount",
+    sortOrder: "desc",
     filter: "",
     type: "all",
   });

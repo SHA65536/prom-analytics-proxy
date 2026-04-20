@@ -1,5 +1,3 @@
-"use no memo";
-
 import { useState, useEffect } from "react";
 import {
   flexRender,
@@ -48,6 +46,8 @@ export function DataTable<TData>({
   onFilterChange,
   onPaginationChange,
 }: DataTableProps<TData>) {
+  "use no memo";
+
   // Local state for client-side operations
   const [sorting, setSorting] = useState<SortingState>(
     externalSortingState || [],
@@ -121,6 +121,9 @@ export function DataTable<TData>({
     }
   }, [data, serverSide]);
 
+  // TanStack Table returns non-memoizable helpers; this component is already
+  // opted out of React Compiler memoization with "use no memo".
+  // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({
     data,
     columns,
@@ -165,16 +168,22 @@ export function DataTable<TData>({
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>
-                {headerGroup.headers.map((header) => (
-                  <TableHead key={header.id}>
-                    {header.isPlaceholder
-                      ? null
-                      : flexRender(
-                          header.column.columnDef.header,
-                          header.getContext(),
-                        )}
-                  </TableHead>
-                ))}
+                {headerGroup.headers.map((header) => {
+                  const colSize = header.column.columnDef.size;
+                  return (
+                    <TableHead
+                      key={header.id}
+                      style={colSize ? { width: colSize } : undefined}
+                    >
+                      {header.isPlaceholder
+                        ? null
+                        : flexRender(
+                            header.column.columnDef.header,
+                            header.getContext(),
+                          )}
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             ))}
           </TableHeader>
@@ -204,7 +213,15 @@ export function DataTable<TData>({
                     );
 
                     return (
-                      <TableCell key={cell.id}>
+                      <TableCell
+                        key={cell.id}
+                        className="overflow-hidden"
+                        style={
+                          cell.column.columnDef.size
+                            ? { width: cell.column.columnDef.size }
+                            : undefined
+                        }
+                      >
                         {maxWidth ? (
                           <TooltipProvider>
                             <Tooltip>

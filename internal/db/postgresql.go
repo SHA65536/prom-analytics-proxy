@@ -694,10 +694,10 @@ func (p *PostGreSQLProvider) GetSeriesMetadata(ctx context.Context, params Serie
 		params.PageSize = 10
 	}
 	if params.SortBy == "" {
-		params.SortBy = "name"
+		params.SortBy = "queryCount"
 	}
 	if params.SortOrder == "" {
-		params.SortOrder = "asc"
+		params.SortOrder = "desc"
 	}
 	params.Usage = NormalizeSeriesMetadataUsage(params.Usage)
 
@@ -768,7 +768,7 @@ func (p *PostGreSQLProvider) GetSeriesMetadata(ctx context.Context, params Serie
           ))
     `
 	// Build complete query with safe ORDER BY clause to prevent SQL injection
-	query := BuildSafeQueryWithOrderBy(baseQuery, "c", " LIMIT $5 OFFSET $6", params.SortBy, params.SortOrder, ValidSeriesMetadataSortFields, "name")
+	query := BuildSafeQueryWithOrderBy(baseQuery, "c", " LIMIT $5 OFFSET $6", params.SortBy, params.SortOrder, ValidSeriesMetadataSortFields, "queryCount", SeriesMetadataSortAliases)
 
 	rows, err := p.db.QueryContext(ctx, query, params.Filter, params.Type, params.Usage, params.Job, params.PageSize, (params.Page-1)*params.PageSize)
 	if err != nil {
