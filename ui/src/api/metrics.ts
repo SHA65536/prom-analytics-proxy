@@ -40,7 +40,7 @@ interface ApiConfig {
     metricQueryPerformanceStatistics: string;
     serieExpressions: string;
     metricUsage: string;
-    jobs: string;
+    producers: string;
   };
 }
 
@@ -68,7 +68,7 @@ const API_CONFIG: ApiConfig = {
       "/api/v1/metricQueryPerformanceStatistics",
     serieExpressions: "/api/v1/serieExpressions",
     metricUsage: "/api/v1/serieUsage",
-    jobs: "/api/v1/jobs",
+    producers: "/api/v1/jobs",
   },
 };
 
@@ -266,9 +266,11 @@ export async function getMetricUsage(
   );
 }
 
-export async function getJobs(): Promise<string[]> {
-  const res = await fetch(`${API_CONFIG.baseUrl}${API_CONFIG.endpoints.jobs}`);
-  if (!res.ok) throw new Error(`Failed to fetch jobs: ${res.status}`);
+export async function getProducers(): Promise<string[]> {
+  const res = await fetch(
+    `${API_CONFIG.baseUrl}${API_CONFIG.endpoints.producers}`,
+  );
+  if (!res.ok) throw new Error(`Failed to fetch producers: ${res.status}`);
   const body = (await res.json()) as { data: string[] };
   return body.data || [];
 }

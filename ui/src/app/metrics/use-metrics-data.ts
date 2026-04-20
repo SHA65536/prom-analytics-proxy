@@ -5,7 +5,7 @@ import {
   getSeriesMetadata,
   getSerieExpressions,
   getMetricUsage,
-  getJobs,
+  getProducers,
 } from "@/api/metrics";
 import {
   PagedResult,
@@ -20,7 +20,7 @@ import { getQueryLatencyTrends } from "@/api/queries";
 
 interface MetricsData {
   metrics: PagedResult<MetricMetadata> | undefined;
-  jobs: string[] | undefined;
+  producers: string[] | undefined;
 }
 
 interface MetricStatisticsData {
@@ -64,15 +64,15 @@ export function useSeriesMetadataTable(
       ),
   });
 
-  const { data: jobs } = useQuery<string[]>({
-    queryKey: ["jobs"],
-    queryFn: getJobs,
+  const { data: producers } = useQuery<string[]>({
+    queryKey: ["producers"],
+    queryFn: getProducers,
   });
 
   return {
     data: {
       metrics,
-      jobs,
+      producers,
     } as MetricsData,
     isLoading,
     error,
